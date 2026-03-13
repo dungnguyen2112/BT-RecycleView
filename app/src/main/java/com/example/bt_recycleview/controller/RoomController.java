@@ -4,6 +4,7 @@ import com.example.bt_recycleview.model.Room;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class RoomController {
 
@@ -95,6 +96,35 @@ public class RoomController {
     public void removeRoom(int index) {
         if (index < 0 || index >= rooms.size()) return;
         rooms.remove(index);
+    }
+
+    public List<Room> search(String query) {
+        if (query == null) {
+            return new ArrayList<>(rooms);
+        }
+
+        String q = query.trim().toLowerCase(Locale.ROOT);
+        if (q.isEmpty()) {
+            return new ArrayList<>(rooms);
+        }
+
+        List<Room> result = new ArrayList<>();
+        for (Room room : rooms) {
+            boolean matchPhone = q.length() >= 3; // tránh gõ 1 số lẻ mà match lung tung theo SĐT
+
+            if (containsIgnoreCase(room.getRoomId(), q)
+                    || containsIgnoreCase(room.getName(), q)
+                    || containsIgnoreCase(room.getTenantName(), q)
+                    || (matchPhone && containsIgnoreCase(room.getPhoneNumber(), q))) {
+                result.add(room);
+            }
+        }
+        return result;
+    }
+
+    private boolean containsIgnoreCase(String value, String queryLower) {
+        if (value == null) return false;
+        return value.toLowerCase(Locale.ROOT).contains(queryLower);
     }
 }
 
