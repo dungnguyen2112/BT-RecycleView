@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -30,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         setupRecyclerView();
+        setupSearchView();
     }
 
     private void setupRecyclerView() {
@@ -38,6 +40,32 @@ public class MainActivity extends AppCompatActivity {
         rvRooms.setAdapter(roomAdapter);
 
         roomAdapter.submitList(new ArrayList<>(roomController.getRooms()));
+    }
+
+    private void setupSearchView() {
+        SearchView searchView = findViewById(R.id.searchView);
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                updateListWithQuery(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                updateListWithQuery(newText);
+                return true;
+            }
+        });
+    }
+
+    private void updateListWithQuery(String query) {
+        RecyclerView rvRooms = findViewById(R.id.rvRooms);
+        RoomAdapter adapter = (RoomAdapter) rvRooms.getAdapter();
+        if (adapter == null) return;
+
+        adapter.submitList(new ArrayList<>(roomController.search(query)));
     }
 }
 
