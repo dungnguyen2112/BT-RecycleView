@@ -65,11 +65,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         setupRecyclerView();
-<<<<<<< HEAD
         setupSearchView();
-=======
         setupAddRoomButton();
->>>>>>> f238f2ad668ce71f69be2c1460975a1a36bcc351
     }
 
     private void setupRecyclerView() {
