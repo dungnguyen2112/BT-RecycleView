@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
@@ -19,8 +20,20 @@ import java.util.Locale;
 
 public class RoomAdapter extends ListAdapter<Room, RoomAdapter.RoomViewHolder> {
 
+    public interface OnRoomClickListener {
+        void onRoomClick(@NonNull Room room);
+    }
+
+    @Nullable
+    private final OnRoomClickListener onRoomClickListener;
+
     public RoomAdapter() {
+        this(null);
+    }
+
+    public RoomAdapter(@Nullable OnRoomClickListener onRoomClickListener) {
         super(DIFF_CALLBACK);
+        this.onRoomClickListener = onRoomClickListener;
     }
 
     private static final DiffUtil.ItemCallback<Room> DIFF_CALLBACK = new DiffUtil.ItemCallback<Room>() {
@@ -48,7 +61,7 @@ public class RoomAdapter extends ListAdapter<Room, RoomAdapter.RoomViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull RoomViewHolder holder, int position) {
-        holder.bind(getItem(position));
+        holder.bind(getItem(position), onRoomClickListener);
     }
 
     static class RoomViewHolder extends RecyclerView.ViewHolder {
@@ -65,7 +78,7 @@ public class RoomAdapter extends ListAdapter<Room, RoomAdapter.RoomViewHolder> {
             tvStatus = itemView.findViewById(R.id.tvStatus);
         }
 
-        void bind(Room room) {
+        void bind(@NonNull Room room, @Nullable OnRoomClickListener onRoomClickListener) {
             NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
 
             tvRoomId.setText("Mã phòng: " + room.getRoomId());
@@ -79,6 +92,12 @@ public class RoomAdapter extends ListAdapter<Room, RoomAdapter.RoomViewHolder> {
                 tvStatus.setText("Tình trạng: Còn trống");
                 tvStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.status_available));
             }
+
+            itemView.setOnClickListener(v -> {
+                if (onRoomClickListener != null) {
+                    onRoomClickListener.onRoomClick(room);
+                }
+            });
         }
     }
 }
