@@ -4,9 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -20,14 +20,12 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 
-/**
- * MainActivity đóng vai trò View trong mô hình MVC.
- * Hiện tại chỉ hiển thị màn hình Hello World, phần 1/5 sẽ mở rộng thêm RecyclerView + Search.
- */
 public class MainActivity extends AppCompatActivity {
 
     private final RoomController roomController = new RoomController();
     private RoomAdapter roomAdapter;
+
+    // Launcher thêm phòng
     private final ActivityResultLauncher<Intent> addRoomLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() != RESULT_OK || result.getData() == null) return;
@@ -41,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, R.string.add_room_failed_data, Toast.LENGTH_SHORT).show();
                     return;
                 }
+
                 if (roomController.isRoomIdExists(roomId)) {
                     Toast.makeText(this, R.string.error_room_id_exists, Toast.LENGTH_SHORT).show();
                     return;
@@ -48,8 +47,17 @@ public class MainActivity extends AppCompatActivity {
 
                 Room room = new Room(roomId, roomName, rentPrice, false, "", "");
                 roomController.addRoom(room);
-                refreshRoomList();
+                refreshRooms();
+
                 Toast.makeText(this, R.string.add_room_success, Toast.LENGTH_SHORT).show();
+            });
+
+    // Launcher sửa phòng
+    private final ActivityResultLauncher<Intent> editRoomLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    refreshRooms();
+                }
             });
 
     @Override
@@ -57,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -69,26 +78,35 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupRecyclerView() {
         RecyclerView rvRooms = findViewById(R.id.rvRooms);
-        roomAdapter = new RoomAdapter();
+
+        roomAdapter = new RoomAdapter(room -> {
+            Intent intent = new Intent(MainActivity.this, EditRoomActivity.class);
+            intent.putExtra(EditRoomActivity.EXTRA_ROOM_ID, room.getRoomId());
+            editRoomLauncher.launch(intent);
+        });
+
         rvRooms.setAdapter(roomAdapter);
-        refreshRoomList();
+        refreshRooms();
     }
 
-    private void refreshRoomList() {
+    private void refreshRooms() {
+        if (roomAdapter == null) return;
         roomAdapter.submitList(new ArrayList<>(roomController.getRooms()));
     }
 
     private void setupAddRoomButton() {
         FloatingActionButton fabAddRoom = findViewById(R.id.fabAddRoom);
+
         fabAddRoom.setOnClickListener(v -> {
             Intent intent = new Intent(this, AddRoomActivity.class);
+
             ArrayList<String> roomIds = new ArrayList<>();
             for (Room room : roomController.getRooms()) {
                 roomIds.add(room.getRoomId());
             }
+
             intent.putStringArrayListExtra(AddRoomActivity.EXTRA_EXISTING_ROOM_IDS, roomIds);
             addRoomLauncher.launch(intent);
         });
     }
 }
-
