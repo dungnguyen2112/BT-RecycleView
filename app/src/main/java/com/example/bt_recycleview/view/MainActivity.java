@@ -4,9 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.graphics.Insets;
@@ -21,10 +22,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 
-/**
- * MainActivity đóng vai trò View trong mô hình MVC.
- * Hiện tại chỉ hiển thị màn hình Hello World, phần 1/5 sẽ mở rộng thêm RecyclerView + Search.
- */
 public class MainActivity extends AppCompatActivity {
 
     private final RoomController roomController = new RoomController();
@@ -42,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, R.string.add_room_failed_data, Toast.LENGTH_SHORT).show();
                     return;
                 }
+
                 if (roomController.isRoomIdExists(roomId)) {
                     Toast.makeText(this, R.string.error_room_id_exists, Toast.LENGTH_SHORT).show();
                     return;
@@ -49,8 +47,17 @@ public class MainActivity extends AppCompatActivity {
 
                 Room room = new Room(roomId, roomName, rentPrice, false, "", "");
                 roomController.addRoom(room);
-                refreshRoomList();
+                refreshRooms();
+
                 Toast.makeText(this, R.string.add_room_success, Toast.LENGTH_SHORT).show();
+            });
+
+    // Launcher sửa phòng
+    private final ActivityResultLauncher<Intent> editRoomLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    refreshRooms();
+                }
             });
 
     @Override
@@ -65,25 +72,44 @@ public class MainActivity extends AppCompatActivity {
         });
 
         setupRecyclerView();
-<<<<<<< HEAD
         setupSearchView();
-=======
         setupAddRoomButton();
->>>>>>> f238f2ad668ce71f69be2c1460975a1a36bcc351
     }
 
     private void setupRecyclerView() {
         RecyclerView rvRooms = findViewById(R.id.rvRooms);
-        roomAdapter = new RoomAdapter();
+        roomAdapter = new RoomAdapter(
+                room -> {
+                    // Click item: sửa phòng
+                    Intent intent = new Intent(MainActivity.this, EditRoomActivity.class);
+                    intent.putExtra(EditRoomActivity.EXTRA_ROOM_ID, room.getRoomId());
+                    editRoomLauncher.launch(intent);
+                },
+                room -> {
+                    // Click nút Xóa: xác nhận và xóa
+                    new AlertDialog.Builder(this)
+                            .setTitle("Xóa phòng")
+                            .setMessage("Bạn có chắc chắn muốn xóa phòng " + room.getName() + " không?")
+                            .setPositiveButton("Xóa", (dialog, which) -> {
+                                roomController.deleteRoom(room);
+                                refreshRooms();
+                                Toast.makeText(this, "Đã xóa phòng", Toast.LENGTH_SHORT).show();
+                            })
+                            .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())
+                            .show();
+                }
+        );
         rvRooms.setAdapter(roomAdapter);
-        refreshRoomList();
+        refreshRooms();
     }
 
-    private void refreshRoomList() {
+    private void refreshRooms() {
+        if (roomAdapter == null) return;
         roomAdapter.submitList(new ArrayList<>(roomController.getRooms()));
     }
 
-<<<<<<< HEAD
+
+
     private void setupSearchView() {
         SearchView searchView = findViewById(R.id.searchView);
 
@@ -109,19 +135,21 @@ public class MainActivity extends AppCompatActivity {
 
         adapter.submitList(new ArrayList<>(roomController.search(query)));
     }
-=======
+
+
     private void setupAddRoomButton() {
         FloatingActionButton fabAddRoom = findViewById(R.id.fabAddRoom);
+
         fabAddRoom.setOnClickListener(v -> {
             Intent intent = new Intent(this, AddRoomActivity.class);
+
             ArrayList<String> roomIds = new ArrayList<>();
             for (Room room : roomController.getRooms()) {
                 roomIds.add(room.getRoomId());
             }
+
             intent.putStringArrayListExtra(AddRoomActivity.EXTRA_EXISTING_ROOM_IDS, roomIds);
             addRoomLauncher.launch(intent);
         });
     }
->>>>>>> f238f2ad668ce71f69be2c1460975a1a36bcc351
 }
-
