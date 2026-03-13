@@ -52,12 +52,14 @@ public class RoomAdapter extends ListAdapter<Room, RoomAdapter.RoomViewHolder> {
     }
 
     static class RoomViewHolder extends RecyclerView.ViewHolder {
+        private final TextView tvRoomId;
         private final TextView tvRoomName;
         private final TextView tvPrice;
         private final TextView tvStatus;
 
         RoomViewHolder(@NonNull View itemView) {
             super(itemView);
+            tvRoomId = itemView.findViewById(R.id.tvRoomId);
             tvRoomName = itemView.findViewById(R.id.tvRoomName);
             tvPrice = itemView.findViewById(R.id.tvPrice);
             tvStatus = itemView.findViewById(R.id.tvStatus);
@@ -66,6 +68,7 @@ public class RoomAdapter extends ListAdapter<Room, RoomAdapter.RoomViewHolder> {
         void bind(Room room) {
             NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
 
+            tvRoomId.setText("Mã phòng: " + room.getRoomId());
             tvRoomName.setText("Tên phòng: " + room.getName());
             tvPrice.setText("Giá thuê: " + formatter.format(room.getRentPrice()));
 

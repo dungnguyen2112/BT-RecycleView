@@ -1,3 +1,19 @@
 <resources>
     <string name="app_name">BT_RecycleView</string>
+    <string name="add_room_title">Thêm phòng</string>
+    <string name="label_room_id">Mã phòng</string>
+    <string name="label_room_name">Tên phòng</string>
+    <string name="label_rent_price">Giá thuê (VND)</string>
+    <string name="action_add_room">Thêm phòng</string>
+    <string name="action_cancel">Hủy</string>
+
+    <string name="error_room_id_required">Vui lòng nhập mã phòng.</string>
+    <string name="error_room_id_format">Mã phòng chỉ gồm chữ, số, _ hoặc - (2-20 ký tự).</string>
+    <string name="error_room_id_exists">Mã phòng đã tồn tại.</string>
+    <string name="error_room_name_required">Vui lòng nhập tên phòng.</string>
+    <string name="error_room_name_too_short">Tên phòng tối thiểu 3 ký tự.</string>
+    <string name="error_rent_price_required">Vui lòng nhập giá thuê.</string>
+    <string name="error_rent_price_invalid">Giá thuê phải là số lớn hơn 0.</string>
+    <string name="add_room_success">Thêm phòng thành công.</string>
+    <string name="add_room_failed_data">Không thể thêm phòng, dữ liệu không hợp lệ.</string>
 </resources>
