@@ -24,16 +24,25 @@ public class RoomAdapter extends ListAdapter<Room, RoomAdapter.RoomViewHolder> {
         void onRoomClick(@NonNull Room room);
     }
 
-    @Nullable
-    private final OnRoomClickListener onRoomClickListener;
-
-    public RoomAdapter() {
-        this(null);
+    public interface OnRoomDeleteClickListener {
+        void onRoomDelete(@NonNull Room room);
     }
 
-    public RoomAdapter(@Nullable OnRoomClickListener onRoomClickListener) {
+    @Nullable
+    private final OnRoomClickListener onRoomClickListener;
+    @Nullable
+    private final OnRoomDeleteClickListener deleteClickListener;
+
+    // Giữ constructor không tham số để không ảnh hưởng chỗ dùng cũ
+    public RoomAdapter() {
+        this(null, null);
+    }
+
+    public RoomAdapter(@Nullable OnRoomClickListener onRoomClickListener,
+                       @Nullable OnRoomDeleteClickListener deleteClickListener) {
         super(DIFF_CALLBACK);
         this.onRoomClickListener = onRoomClickListener;
+        this.deleteClickListener = deleteClickListener;
     }
 
     private static final DiffUtil.ItemCallback<Room> DIFF_CALLBACK = new DiffUtil.ItemCallback<Room>() {
@@ -61,7 +70,7 @@ public class RoomAdapter extends ListAdapter<Room, RoomAdapter.RoomViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull RoomViewHolder holder, int position) {
-        holder.bind(getItem(position), onRoomClickListener);
+        holder.bind(getItem(position), onRoomClickListener, deleteClickListener);
     }
 
     static class RoomViewHolder extends RecyclerView.ViewHolder {
@@ -69,6 +78,7 @@ public class RoomAdapter extends ListAdapter<Room, RoomAdapter.RoomViewHolder> {
         private final TextView tvRoomName;
         private final TextView tvPrice;
         private final TextView tvStatus;
+        private final View btnDelete;
 
         RoomViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -76,9 +86,12 @@ public class RoomAdapter extends ListAdapter<Room, RoomAdapter.RoomViewHolder> {
             tvRoomName = itemView.findViewById(R.id.tvRoomName);
             tvPrice = itemView.findViewById(R.id.tvPrice);
             tvStatus = itemView.findViewById(R.id.tvStatus);
+            btnDelete = itemView.findViewById(R.id.btnDelete);
         }
 
-        void bind(@NonNull Room room, @Nullable OnRoomClickListener onRoomClickListener) {
+        void bind(@NonNull Room room,
+                  @Nullable OnRoomClickListener onRoomClickListener,
+                  @Nullable OnRoomDeleteClickListener deleteClickListener) {
             NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
 
             tvRoomId.setText("Mã phòng: " + room.getRoomId());
@@ -96,6 +109,12 @@ public class RoomAdapter extends ListAdapter<Room, RoomAdapter.RoomViewHolder> {
             itemView.setOnClickListener(v -> {
                 if (onRoomClickListener != null) {
                     onRoomClickListener.onRoomClick(room);
+                }
+            });
+
+            btnDelete.setOnClickListener(v -> {
+                if (deleteClickListener != null) {
+                    deleteClickListener.onRoomDelete(room);
                 }
             });
         }

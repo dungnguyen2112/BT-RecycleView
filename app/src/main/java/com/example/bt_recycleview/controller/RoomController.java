@@ -25,6 +25,19 @@ public class RoomController {
         return rooms;
     }
 
+    public void deleteRoom(Room room) {
+        if (room == null) {
+            return;
+        }
+        for (int i = 0; i < rooms.size(); i++) {
+            Room current = rooms.get(i);
+            if (current.getRoomId().equals(room.getRoomId())) {
+                rooms.remove(i);
+                break;
+            }
+        }
+    }
+
     // CREATE
     public void addRoom(Room room) {
         if (room != null) {
@@ -114,3 +127,4 @@ public class RoomController {
         return value.toLowerCase(Locale.ROOT).contains(queryLower);
     }
 }
+

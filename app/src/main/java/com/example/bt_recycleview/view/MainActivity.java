@@ -7,6 +7,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.graphics.Insets;
@@ -25,8 +26,6 @@ public class MainActivity extends AppCompatActivity {
 
     private final RoomController roomController = new RoomController();
     private RoomAdapter roomAdapter;
-
-    // Launcher thêm phòng
     private final ActivityResultLauncher<Intent> addRoomLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() != RESULT_OK || result.getData() == null) return;
@@ -66,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -80,13 +78,27 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupRecyclerView() {
         RecyclerView rvRooms = findViewById(R.id.rvRooms);
-
-        roomAdapter = new RoomAdapter(room -> {
-            Intent intent = new Intent(MainActivity.this, EditRoomActivity.class);
-            intent.putExtra(EditRoomActivity.EXTRA_ROOM_ID, room.getRoomId());
-            editRoomLauncher.launch(intent);
-        });
-
+        roomAdapter = new RoomAdapter(
+                room -> {
+                    // Click item: sửa phòng
+                    Intent intent = new Intent(MainActivity.this, EditRoomActivity.class);
+                    intent.putExtra(EditRoomActivity.EXTRA_ROOM_ID, room.getRoomId());
+                    editRoomLauncher.launch(intent);
+                },
+                room -> {
+                    // Click nút Xóa: xác nhận và xóa
+                    new AlertDialog.Builder(this)
+                            .setTitle("Xóa phòng")
+                            .setMessage("Bạn có chắc chắn muốn xóa phòng " + room.getName() + " không?")
+                            .setPositiveButton("Xóa", (dialog, which) -> {
+                                roomController.deleteRoom(room);
+                                refreshRooms();
+                                Toast.makeText(this, "Đã xóa phòng", Toast.LENGTH_SHORT).show();
+                            })
+                            .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())
+                            .show();
+                }
+        );
         rvRooms.setAdapter(roomAdapter);
         refreshRooms();
     }
@@ -96,7 +108,8 @@ public class MainActivity extends AppCompatActivity {
         roomAdapter.submitList(new ArrayList<>(roomController.getRooms()));
     }
 
-<<<<<<< HEAD
+
+
     private void setupSearchView() {
         SearchView searchView = findViewById(R.id.searchView);
 
@@ -122,7 +135,8 @@ public class MainActivity extends AppCompatActivity {
 
         adapter.submitList(new ArrayList<>(roomController.search(query)));
     }
-=======
+
+
     private void setupAddRoomButton() {
         FloatingActionButton fabAddRoom = findViewById(R.id.fabAddRoom);
 
@@ -138,10 +152,4 @@ public class MainActivity extends AppCompatActivity {
             addRoomLauncher.launch(intent);
         });
     }
-<<<<<<< HEAD
->>>>>>> f238f2ad668ce71f69be2c1460975a1a36bcc351
 }
-
-=======
-}
->>>>>>> 6f95fac3afc9ba87db106494c105fb6d507963d9
