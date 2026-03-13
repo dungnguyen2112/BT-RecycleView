@@ -1,5 +1,6 @@
 package com.example.bt_recycleview.model;
 
+
 public class Room {
     private final String roomId;     // Mã phòng
     private String name;             // Tên phòng
