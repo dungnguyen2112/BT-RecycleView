@@ -10,10 +10,6 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.bt_recycleview.R;
 
-/**
- * MainActivity đóng vai trò View trong mô hình MVC.
- * Hiện tại chỉ hiển thị màn hình Hello World, phần 1/5 sẽ mở rộng thêm RecyclerView + Search.
- */
 public class MainActivity extends AppCompatActivity {
 
     @Override

@@ -1,9 +1,5 @@
 package com.example.bt_recycleview.model;
 
-/**
- * Model Room dùng chung cho cả project (MVC).
- * Phần 1, 2, 3, 4, 5 đều có thể dùng lại class này.
- */
 public class Room {
     private final String roomId;     // Mã phòng
     private String name;             // Tên phòng
